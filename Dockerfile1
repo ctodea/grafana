@@ -1,0 +1,18 @@
+# Golang build container
+FROM ubi7/go-toolset
+#RUN apk add --no-cache gcc g++
+WORKDIR $GOPATH/src/github.com/grafana/grafana
+
+COPY go.mod go.sum ./
+COPY vendor vendor
+
+RUN /opt/rh/go-toolset-1.12/root/usr/bin/go mod verify
+
+COPY pkg pkg
+COPY build.go build.go
+COPY package.json package.json
+USER root
+RUN chown default -R $GOPATH
+USER default
+RUN /opt/rh/go-toolset-1.12/root/usr/bin/go run build.go build
+
